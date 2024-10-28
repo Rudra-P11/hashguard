@@ -1,0 +1,7 @@
+# Commit Title (up to 50 characters)
+
+# Brief description of the changes made, if necessary.
+# - Point 1
+# - Point 2
+
+# Related Issue (e.g., Closes #issue-number)
