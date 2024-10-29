@@ -1,3 +1,4 @@
+<div style="background-color: white; padding: 10px;">
 **HashGuard’s Project आधार**
 
 ![Logo](assets/ProjectAdhaarLOGO.png)
@@ -61,3 +62,5 @@ This project aims to enhance privacy and security in identity management while p
 ***4\) Gmail API to verify users***  
 ***5\) Captcha authentication***  
 ***6\) Masked Adhaar generation***
+
+</div>
