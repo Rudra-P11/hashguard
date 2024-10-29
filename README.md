@@ -1,5 +1,7 @@
 **HashGuard’s Project आधार**
 
+![Logo](assets/ProjectAdhaarLOGO.png)
+
 ### **Brief on Masked Aadhaar Card**
 
 **What is a Masked Aadhaar Card?** A masked Aadhaar card is a version of the Aadhaar card where the first eight digits of the Aadhaar number are hidden or obscured. Only the last four digits are visible, ensuring a layer of privacy and security.
