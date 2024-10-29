@@ -1,9 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify , send_file
 from cryptography.fernet import Fernet
 import hashlib, secrets, sqlite3, time, smtplib, os
 from email.mime.text import MIMEText
 from flask_cors import CORS
 from datetime import datetime
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from pdf2image import convert_from_path
+import fitz  # PyMuPDF
 
 app = Flask(__name__)
 CORS(app)
@@ -320,6 +324,74 @@ def login():
             return jsonify({"error": "Invalid login credentials"}), 401
     finally:
         conn.close()
+
+
+# Define the directory to store assets
+ASSETS_DIR = os.path.join(os.path.dirname(__file__), 'assets')
+
+@app.route('/generate-aadhaar-card/<email>', methods=['GET'])
+def generate_aadhaar_card(email):
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    # Fetch user details
+    c.execute("SELECT name, dob, gender, vid FROM users WHERE email = ?", (email,))
+    user = c.fetchone()
+
+    if user:
+        name, dob, gender, vid = user
+        template_path = os.path.join(ASSETS_DIR, "aadhaar_template.png")  # Set your template path
+        
+        # Generate PDF
+        pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email)
+
+        return jsonify({"message": "Aadhaar card generated. You can download it in PDF or image format.", 
+                        "pdf_download": f"/download-pdf/{email}",
+                        "image_download": f"/download-image/{email}"}), 200
+
+    return jsonify({"error": "User not found."}), 404
+
+@app.route('/download-pdf/<email>', methods=['GET'])
+def download_pdf(email):
+    pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
+    if os.path.exists(pdf_filename):
+        return send_file(pdf_filename, mimetype='application/pdf', as_attachment=True)
+    return jsonify({"error": "PDF file not found."}), 404
+
+@app.route('/download-image/<email>', methods=['GET'])
+def download_image(email):
+    image_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.png")
+    if os.path.exists(image_filename):
+        return send_file(image_filename, mimetype='image/png', as_attachment=True)
+    return jsonify({"error": "Image file not found."}), 404
+
+# Function to generate PDF with dynamic text
+def generate_pdf(template_path, name, dob, gender, vid, email):
+    pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")  # Use email to create a unique filename
+    c = canvas.Canvas(pdf_filename, pagesize=(243.66, 153.56))
+    c.drawImage(template_path, 0, 0, width=243.66, height=153.56)
+    c.setFont("Helvetica", 7)
+    c.drawString(99.173, 104.31 - 8.502 / 2.5, f"Name: {name}")
+    c.drawString(96.063, 90.799 - 8.502 / 1.5, f"DOB: {dob}")
+    c.drawString(104.330, 73.66 - 8.502 / 1.35, f"Gender: {gender}")
+    c.drawString(96.063, 59.401 - 8.502 / 1.40, f"VID: {vid}")
+    c.save()
+    
+    # Generate image from PDF
+    pdf_to_image(pdf_filename)
+    
+    return pdf_filename
+
+# Function to convert PDF to image using PyMuPDF
+def pdf_to_image(pdf_path, dpi=300):
+    pdf_document = fitz.open(pdf_path)
+    page = pdf_document[0]  # Get the first page
+    pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))  # Adjust the matrix for DPI scaling
+    image_filename = pdf_path.replace('.pdf', '.png')  # Use the same name with .png extension
+    pix.save(image_filename)
+    pdf_document.close()
+
+
 
 if __name__ == '__main__':
     create_tables()
