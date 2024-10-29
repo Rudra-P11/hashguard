@@ -52,7 +52,7 @@ This project is designed to provide a secure identity management system based on
 
 This project aims to enhance privacy and security in identity management while providing a user-friendly experience.
 
-***Current Progress:***  
+***Current Progress as of 29/10/24:***  
 ***1\) The User Registration UI and Web design for frontend***  
 ***2\) Database and Encryption with user’s inputs***  
 ***3\) Backend for the template generation***  
