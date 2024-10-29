@@ -8,7 +8,7 @@
 
 **What is a Masked Aadhaar Card?** A masked Aadhaar card is a version of the Aadhaar card where the first eight digits of the Aadhaar number are hidden or obscured and a VID is given instead. Only the last four digits are visible, ensuring a layer of privacy and security.
 
-![Logo](assets/Masked_Aadhaar_example.jpg)
+![Masked Aadhaar example](assets/Masked_Aadhaar_example.jpg)
 
 **Uses of Masked Aadhaar Card:**
 
