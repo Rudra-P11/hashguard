@@ -10,6 +10,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask_cors import CORS 
 import os
 from datetime import datetime
+from pydub import AudioSegment
+import speech_recognition as sr
 
 app = Flask(__name__)
 CORS(app)
@@ -265,3 +267,42 @@ if __name__ == '__main__':
         app.run(debug=True)
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()  # Shut down the scheduler when the app is stopped
+
+@app.route('/verify_voice', methods=['POST'])
+def verify_voice():
+    if 'audio' not in request.files:
+        return jsonify({'status': 'error', 'message': 'No audio file provided.'})
+
+    audio_file = request.files['audio']
+
+    # Save the uploaded file temporarily
+    temp_audio_path = 'temp_audio.wav'
+    audio_file.save(temp_audio_path)
+
+    # Convert to WAV format if not already
+    audio = AudioSegment.from_file(temp_audio_path)
+    audio.export(temp_audio_path, format='wav')
+
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(temp_audio_path) as source:
+        audio_data = recognizer.record(source)
+
+    try:
+        # Recognize the audio
+        recognized_text = recognizer.recognize_google(audio_data)
+        expected_phrase = "What is your name."
+        if recognized_text.lower() == expected_phrase.lower():
+            return jsonify({'status': 'success', 'message': 'Verification successful!'})
+        else:
+            return jsonify({'status': 'failure', 'message': 'Verification failed!'})
+    except sr.UnknownValueError:
+        return jsonify({'status': 'error', 'message': 'Could not understand audio.'})
+    except sr.RequestError:
+        return jsonify({'status': 'error', 'message': 'Could not request results from Google Speech Recognition service.'})
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_audio_path):
+            os.remove(temp_audio_path)
+
+if __name__ == '__main__':
+    app.run(debug=True)
