@@ -4,10 +4,13 @@ import hashlib, secrets, sqlite3, time, smtplib, os
 from email.mime.text import MIMEText
 from flask_cors import CORS
 from datetime import datetime
+from pydub import AudioSegment
+import speech_recognition as sr
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from pdf2image import convert_from_path
 import fitz  # PyMuPDF
+
 
 app = Flask(__name__)
 CORS(app)
@@ -390,9 +393,49 @@ def pdf_to_image(pdf_path, dpi=300):
     image_filename = pdf_path.replace('.pdf', '.png')  # Use the same name with .png extension
     pix.save(image_filename)
     pdf_document.close()
+    
+@app.route('/verify-voice', methods=['POST'])
+def verify_voice():
+    if 'audio' not in request.files:
+        return jsonify({'status': 'error', 'message': 'No audio file provided.'})
+
+    audio_file = request.files['audio']
+
+    # Save the uploaded file temporarily
+    temp_audio_path = 'temp_audio.wav'
+    audio_file.save(temp_audio_path)
+
+    # Convert to WAV format if not already and normalize the audio
+    audio = AudioSegment.from_file(temp_audio_path)
+    normalized_audio = audio.normalize()
+    normalized_audio.export(temp_audio_path, format='wav')
+
+    recognizer = sr.Recognizer()
+    recognizer.energy_threshold = 150  # Adjusted for more sensitivity
+
+    with sr.AudioFile(temp_audio_path) as source:
+        audio_data = recognizer.record(source)
+
+    try:
+        # Recognize the audio
+        recognized_text = recognizer.recognize_google(audio_data).strip().rstrip('.')  # Remove trailing period
+        expected_phrase = "What is your name"
+        if recognized_text.lower() == expected_phrase.lower():
+            return jsonify({'status': 'success', 'message': 'Verification successful!'})
+        else:
+            return jsonify({'status': 'failure', 'message': 'Verification failed!'})
+    except sr.UnknownValueError:
+        return jsonify({'status': 'error', 'message': 'Could not understand audio.'})
+    except sr.RequestError:
+        return jsonify({'status': 'error', 'message': 'Could not request results from Google Speech Recognition service.'})
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_audio_path):
+            os.remove(temp_audio_path)
 
 
 
 if __name__ == '__main__':
     create_tables()
+    print("Database tables created or verified.")
     app.run(debug=True)
