@@ -384,7 +384,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     <body>
         <p>Dear user,</p>
         <p>Please find your masked Aadhaar attached as a PDF document. Here’s a preview of your masked Aadhaar:</p>
-        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 300px; height: auto;" />
+        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 100%; max-width: 300px; height: auto;" />
 
         <!-- Four-line gap -->
         <div style="line-height: 1.5; height: 4em;"></div>
