@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify , send_file
+from flask import Flask, request, jsonify , send_file , send_from_directory
 from cryptography.fernet import Fernet
 import hashlib, secrets, sqlite3, time, smtplib, os
 from email.mime.text import MIMEText
@@ -364,40 +364,51 @@ def generate_aadhaar_card(email):
 
     return jsonify({"error": "User not found."}), 404
 
+@app.route('/download-pdf/<email>', methods=['GET'])
+def download_pdf(email):
+    pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
+    if os.path.exists(pdf_filename):
+        return send_file(pdf_filename, mimetype='application/pdf', as_attachment=True)
+    return jsonify({"error": "PDF file not found."}), 404
+
+@app.route('/download-image/<email>', methods=['GET'])
+def download_image(email):
+    image_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.png")
+    if os.path.exists(image_filename):
+        return send_file(image_filename, mimetype='image/png', as_attachment=True)
+    return jsonify({"error": "Image file not found."}), 404
+
+# Define the path to the assets folder
+ASSETS_FOLDER = os.path.join(app.root_path, 'static', 'assets')
+
+@app.route('/assets/<path:filename>')
+def download_file(filename):
+    return send_from_directory(ASSETS_FOLDER, filename, as_attachment=True)
 
 def send_masked_aadhaar_email(email, pdf_path, image_path):
-    # Extract filenames from paths
-    pdf_filename = os.path.basename(pdf_path)  # e.g., aadhaar_card_email.pdf
-    image_filename = os.path.basename(image_path)  # e.g., aadhaar_card_email.png
+    pdf_filename = os.path.basename(pdf_path)
+    image_filename = os.path.basename(image_path)
     logo_path = os.path.join(ASSETS_DIR, "logo-square-light.png")
 
-    # Set up the MIME message with multipart content
     msg = MIMEMultipart('related')
     msg['Subject'] = 'Here is your masked Aadhaar'
     msg['From'] = 'omkarlakhutework1@gmail.com'
     msg['To'] = email
 
-    # Include HTML with styling
     # HTML content with inline image
     html = f"""
     <html>
     <body>
         <p>Dear user,</p>
         <p>Please find your masked Aadhaar attached as a PDF document. Here’s a preview of your masked Aadhaar:</p>
-        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 100%; max-width: 300px; height: auto;" />
-
+        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 300px; height: auto;" />
         <!-- Four-line gap -->
         <div style="line-height: 1.5; height: 4em;"></div>
-
         <p style="font-style: italic; font-weight: bold; color: #333;">
             Best regards,<br>
             HashGuard Team
         </p>
-
-        <!-- Company logo -->
-        <img src="cid:company_logo" alt="Company Logo" style="width: 101px; height: auto; margin-top: 5px;" />
-        <!-- Four-line gap -->
-        <div style="line-height: 1.5; height: 4em;"></div>
+        <img src="cid:company_logo" alt="Company Logo" style="width: 101px; height: auto; margin-top: 5ppx;" />
     </body>
     </html>
     """
@@ -405,15 +416,15 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
 
     # Attach the image for inline display
     with open(image_path, 'rb') as img_file:
-        img = MIMEImage(img_file.read(), _subtype="png")  # Ensure it's a PNG image
-        img.add_header('Content-ID', '<masked_aadhaar_image>')  # Matches the "cid" in HTML
-        img.add_header('Content-Disposition', 'inline', filename=image_filename)  # Use the image filename
+        img = MIMEImage(img_file.read(), _subtype="png")
+        img.add_header('Content-ID', '<masked_aadhaar_image>')
+        img.add_header('Content-Disposition', 'inline', filename=image_filename)
         msg.attach(img)
 
     # Attach the PDF as an attachment
     with open(pdf_path, 'rb') as pdf_file:
         pdf = MIMEApplication(pdf_file.read(), _subtype="pdf")
-        pdf.add_header('Content-Disposition', 'attachment', filename=pdf_filename)  # Use the PDF filename
+        pdf.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
         msg.attach(pdf)
 
     # Attach the company logo
@@ -423,13 +434,13 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
         logo.add_header('Content-Disposition', 'inline', filename='hashguard_logo.png')
         msg.attach(logo)
 
-    # Send the email via SMTP
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login('omkarlakhutework1@gmail.com', 'gecx rpts oddc sflv')
         server.send_message(msg)
 
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
+
 # Helper function to generate PDF
 def generate_pdf(template_path, name, dob, gender, vid, email):
     pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
@@ -442,7 +453,6 @@ def generate_pdf(template_path, name, dob, gender, vid, email):
     c.drawString(96.063, 59.401 - 8.502 / 1.40, f"VID: {vid}")
     c.save()
 
-    # Convert the generated PDF to an image
     pdf_to_image(pdf_filename)
 
     return pdf_filename
@@ -456,47 +466,14 @@ def pdf_to_image(pdf_path, dpi=300):
     pix.save(image_filename)
     pdf_document.close()
 
+@app.route('/verify-captcha', methods=['POST'])
+def verify_captcha():
+    captcha_checked = request.json.get('captcha_checked', False)
     
-@app.route('/verify-voice', methods=['POST'])
-def verify_voice():
-    if 'audio' not in request.files:
-        return jsonify({'status': 'error', 'message': 'No audio file provided.'})
-
-    audio_file = request.files['audio']
-
-    # Save the uploaded file temporarily
-    temp_audio_path = 'temp_audio.wav'
-    audio_file.save(temp_audio_path)
-
-    # Convert to WAV format if not already and normalize the audio
-    audio = AudioSegment.from_file(temp_audio_path)
-    normalized_audio = audio.normalize()
-    normalized_audio.export(temp_audio_path, format='wav')
-
-    recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 150  # Adjusted for more sensitivity
-
-    with sr.AudioFile(temp_audio_path) as source:
-        audio_data = recognizer.record(source)
-
-    try:
-        # Recognize the audio
-        recognized_text = recognizer.recognize_google(audio_data).strip().rstrip('.')  # Remove trailing period
-        expected_phrase = "What is your name"
-        if recognized_text.lower() == expected_phrase.lower():
-            return jsonify({'status': 'success', 'message': 'Verification successful!'})
-        else:
-            return jsonify({'status': 'failure', 'message': 'Verification failed!'})
-    except sr.UnknownValueError:
-        return jsonify({'status': 'error', 'message': 'Could not understand audio.'})
-    except sr.RequestError:
-        return jsonify({'status': 'error', 'message': 'Could not request results from Google Speech Recognition service.'})
-    finally:
-        # Clean up temporary file
-        if os.path.exists(temp_audio_path):
-            os.remove(temp_audio_path)
-
-
+    if captcha_checked:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'CAPTCHA verification failed!'})
 
 if __name__ == '__main__':
     create_tables()
