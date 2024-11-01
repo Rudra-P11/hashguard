@@ -474,6 +474,45 @@ def verify_captcha():
         return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'CAPTCHA verification failed!'})
+    
+@app.route('/authenticate-vid', methods=['POST'])
+def authenticate_vid():
+    data = request.json
+    vid = data.get('vid')
+
+    if vid is None:
+        return jsonify({"error": "VID is required."}), 400
+
+    # Check if vid is an integer
+    if not isinstance(vid, int) or not (1000000000000000 <= vid < 10000000000000000):
+        return jsonify({"error": "VID must be a 16-digit positive number."}), 400
+
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    try:
+        # Check if the VID exists in the database
+        c.execute("SELECT name, dob, gender FROM users WHERE vid = ?", (vid,))
+        user = c.fetchone()
+
+        if user:
+            # If VID exists, return the user's details
+            user_details = {
+                "name": user["name"],
+                "dob": user["dob"],
+                "gender": user["gender"]
+            }
+            return jsonify({"message": "Authentication successful", "user_details": user_details}), 200
+        else:
+            # If VID does not exist, return an authentication failure message
+            return jsonify({"message": "Failed to authenticate. VID does not exist."}), 404
+
+    except sqlite3.Error as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+    finally:
+        conn.close()
+
 
 
 
