@@ -38,9 +38,10 @@ def create_tables():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             dob TEXT NOT NULL CHECK(dob GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),  -- Ensures YYYY-MM-DD format
-            gender TEXT CHECK(gender IN ('M', 'F', 'O')),  -- M for male, F for female, O for other
+            gender TEXT CHECK(gender IN ('Male', 'Female', 'Other')),  -- M for male, F for female, O for other
             vid INTEGER CHECK(vid >= 1000000000000000 AND vid < 10000000000000000) UNIQUE,  -- Ensures 16-digit positive number constraint
             hashed_aadhaar TEXT NOT NULL UNIQUE,
+            last_digits TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             hashed_password TEXT NOT NULL,
             registered_at INTEGER NOT NULL
@@ -62,7 +63,7 @@ def show_users():
     conn = get_db_connection()
     c = conn.cursor()
     # Select all fields from the users table
-    c.execute("SELECT id, name, dob, gender, vid, hashed_aadhaar, email, registered_at FROM users")
+    c.execute("SELECT id, name, dob, gender, vid, hashed_aadhaar, email, registered_at, last_digits FROM users")
     users = c.fetchall()
     conn.close()
     
@@ -75,6 +76,7 @@ def show_users():
             "gender": user[3],
             "vid": user[4],
             "hashed_aadhaar": user[5],
+            "last_digits": user[8],
             "email": user[6],
             "registered_at": user[7]
         } 
@@ -127,6 +129,7 @@ def register():
         dob_formatted = datetime.strptime(dob, '%Y-%m-%d').date()
     except ValueError:
         return jsonify({"error": "Date of Birth must be in YYYY-MM-DD format."}), 400
+
 
     # Hash Aadhaar
     hashed_aadhaar = hashlib.sha256(aadhaar.encode()).hexdigest()
@@ -194,6 +197,8 @@ def verify_otp():
     dob = data.get('dob')
     gender = data.get('gender')
     
+    # Aadhaar last four digits
+    last_digits = aadhaar[-4:]
     # Hash the password and Aadhaar for storage
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     hashed_aadhaar = hashlib.sha256(aadhaar.encode()).hexdigest()
@@ -223,8 +228,8 @@ def verify_otp():
             if current_time < expiration and hashed_stored_otp == hashed_user_otp:
                 # Register user if OTP is valid
                 c.execute(
-                    "INSERT INTO users (hashed_aadhaar, email, hashed_password, name, dob, gender, registered_at ,vid) VALUES (?, ?, ?, ?, ?, ?, ? ,?) ",
-                    (hashed_aadhaar, email, hashed_password, name, dob, gender, current_time , vid)
+                    "INSERT INTO users (hashed_aadhaar, email, hashed_password, name, dob, gender, registered_at ,vid, last_digits) VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?) ",
+                    (hashed_aadhaar, email, hashed_password, name, dob, gender, current_time , vid, last_digits)
                 )
                 c.execute("DELETE FROM otps WHERE email = ?", (email,))
                 conn.commit()
@@ -343,15 +348,15 @@ def generate_aadhaar_card(email):
     c = conn.cursor()
     
     # Fetch user details
-    c.execute("SELECT name, dob, gender, vid FROM users WHERE email = ?", (email,))
+    c.execute("SELECT name, dob, gender, vid , last_digits FROM users WHERE email = ?", (email,))
     user = c.fetchone()
 
     if user:
-        name, dob, gender, vid = user
+        name, dob, gender, vid , last_digits= user
         template_path = os.path.join(ASSETS_DIR, "aadhaar_template.png")  # Set your template path
 
         # Generate PDF and image
-        pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email)
+        pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email , last_digits)
         image_filename = pdf_filename.replace('.pdf', '.png')
 
         # Send the email with PDF and image
@@ -431,16 +436,20 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
         server.send_message(msg)
 
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
+
 # Helper function to generate PDF
-def generate_pdf(template_path, name, dob, gender, vid, email):
+def generate_pdf(template_path, name, dob, gender, vid, email , last_digits):
     pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
     c = canvas.Canvas(pdf_filename, pagesize=(243.66, 153.56))
     c.drawImage(template_path, 0, 0, width=243.66, height=153.56)
     c.setFont("Helvetica", 7)
-    c.drawString(99.173, 104.31 - 8.502 / 2.5, f"Name: {name}")
-    c.drawString(96.063, 90.799 - 8.502 / 1.5, f"DOB: {dob}")
-    c.drawString(104.330, 73.66 - 8.502 / 1.35, f"Gender: {gender}")
-    c.drawString(96.063, 59.401 - 8.502 / 1.40, f"VID: {vid}")
+
+    c.drawString(99.173-18, 104.31 - 8.502 / 2.5, f"Name: {name}")     
+    c.drawString(96.063-15, 90.799 - 8.502 / 1.5, f"DOB: {dob}") 
+    c.drawString(104.330-23, 73.66 - 8.502 / 1.35, f"Gender: {gender}")  
+    c.drawString(96.063-15, 59.401 - 8.502 / 1.40, f"VID: {vid}") 
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(138, 39.6, last_digits)
     c.save()
 
     # Convert the generated PDF to an image
@@ -497,44 +506,14 @@ def verify_voice():
             os.remove(temp_audio_path)
 
     
-@app.route('/verify-voice', methods=['POST'])
-def verify_voice():
-    if 'audio' not in request.files:
-        return jsonify({'status': 'error', 'message': 'No audio file provided.'})
-
-    audio_file = request.files['audio']
-
-    # Save the uploaded file temporarily
-    temp_audio_path = 'temp_audio.wav'
-    audio_file.save(temp_audio_path)
-
-    # Convert to WAV format if not already and normalize the audio
-    audio = AudioSegment.from_file(temp_audio_path)
-    normalized_audio = audio.normalize()
-    normalized_audio.export(temp_audio_path, format='wav')
-
-    recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 150  # Adjusted for more sensitivity
-
-    with sr.AudioFile(temp_audio_path) as source:
-        audio_data = recognizer.record(source)
-
-    try:
-        # Recognize the audio
-        recognized_text = recognizer.recognize_google(audio_data).strip().rstrip('.')  # Remove trailing period
-        expected_phrase = "What is your name"
-        if recognized_text.lower() == expected_phrase.lower():
-            return jsonify({'status': 'success', 'message': 'Verification successful!'})
-        else:
-            return jsonify({'status': 'failure', 'message': 'Verification failed!'})
-    except sr.UnknownValueError:
-        return jsonify({'status': 'error', 'message': 'Could not understand audio.'})
-    except sr.RequestError:
-        return jsonify({'status': 'error', 'message': 'Could not request results from Google Speech Recognition service.'})
-    finally:
-        # Clean up temporary file
-        if os.path.exists(temp_audio_path):
-            os.remove(temp_audio_path)
+@app.route('/verify-captcha', methods=['POST'])
+def verify_captcha():
+    captcha_checked = request.json.get('captcha_checked', False)
+    
+    if captcha_checked:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'CAPTCHA verification failed!'})
 
 
 
