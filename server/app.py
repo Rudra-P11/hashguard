@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify , send_file , send_from_directory
+from flask import Flask, request, jsonify , send_file
 from cryptography.fernet import Fernet
 import hashlib, secrets, sqlite3, time, smtplib, os
 from email.mime.text import MIMEText
@@ -37,9 +37,10 @@ def create_tables():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             dob TEXT NOT NULL CHECK(dob GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),  -- Ensures YYYY-MM-DD format
-            gender TEXT CHECK(gender IN ('M', 'F', 'O')),  -- M for male, F for female, O for other
+            gender TEXT CHECK(gender IN ('Male', 'Female', 'Other')),  -- M for male, F for female, O for other
             vid INTEGER CHECK(vid >= 1000000000000000 AND vid < 10000000000000000) UNIQUE,  -- Ensures 16-digit positive number constraint
             hashed_aadhaar TEXT NOT NULL UNIQUE,
+            last_digits TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             hashed_password TEXT NOT NULL,
             registered_at INTEGER NOT NULL
@@ -61,7 +62,7 @@ def show_users():
     conn = get_db_connection()
     c = conn.cursor()
     # Select all fields from the users table
-    c.execute("SELECT id, name, dob, gender, vid, hashed_aadhaar, email, registered_at FROM users")
+    c.execute("SELECT id, name, dob, gender, vid, hashed_aadhaar, email, registered_at, last_digits FROM users")
     users = c.fetchall()
     conn.close()
     
@@ -74,6 +75,7 @@ def show_users():
             "gender": user[3],
             "vid": user[4],
             "hashed_aadhaar": user[5],
+            "last_digits": user[8],
             "email": user[6],
             "registered_at": user[7]
         } 
@@ -126,6 +128,7 @@ def register():
         dob_formatted = datetime.strptime(dob, '%Y-%m-%d').date()
     except ValueError:
         return jsonify({"error": "Date of Birth must be in YYYY-MM-DD format."}), 400
+
 
     # Hash Aadhaar
     hashed_aadhaar = hashlib.sha256(aadhaar.encode()).hexdigest()
@@ -193,6 +196,8 @@ def verify_otp():
     dob = data.get('dob')
     gender = data.get('gender')
     
+    # Aadhaar last four digits
+    last_digits = aadhaar[-4:]
     # Hash the password and Aadhaar for storage
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     hashed_aadhaar = hashlib.sha256(aadhaar.encode()).hexdigest()
@@ -222,8 +227,8 @@ def verify_otp():
             if current_time < expiration and hashed_stored_otp == hashed_user_otp:
                 # Register user if OTP is valid
                 c.execute(
-                    "INSERT INTO users (hashed_aadhaar, email, hashed_password, name, dob, gender, registered_at ,vid) VALUES (?, ?, ?, ?, ?, ?, ? ,?) ",
-                    (hashed_aadhaar, email, hashed_password, name, dob, gender, current_time , vid)
+                    "INSERT INTO users (hashed_aadhaar, email, hashed_password, name, dob, gender, registered_at ,vid, last_digits) VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?) ",
+                    (hashed_aadhaar, email, hashed_password, name, dob, gender, current_time , vid, last_digits)
                 )
                 c.execute("DELETE FROM otps WHERE email = ?", (email,))
                 conn.commit()
@@ -342,15 +347,15 @@ def generate_aadhaar_card(email):
     c = conn.cursor()
     
     # Fetch user details
-    c.execute("SELECT name, dob, gender, vid FROM users WHERE email = ?", (email,))
+    c.execute("SELECT name, dob, gender, vid , last_digits FROM users WHERE email = ?", (email,))
     user = c.fetchone()
 
     if user:
-        name, dob, gender, vid = user
+        name, dob, gender, vid , last_digits= user
         template_path = os.path.join(ASSETS_DIR, "aadhaar_template.png")  # Set your template path
 
         # Generate PDF and image
-        pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email)
+        pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email , last_digits)
         image_filename = pdf_filename.replace('.pdf', '.png')
 
         # Send the email with PDF and image
@@ -364,51 +369,40 @@ def generate_aadhaar_card(email):
 
     return jsonify({"error": "User not found."}), 404
 
-@app.route('/download-pdf/<email>', methods=['GET'])
-def download_pdf(email):
-    pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
-    if os.path.exists(pdf_filename):
-        return send_file(pdf_filename, mimetype='application/pdf', as_attachment=True)
-    return jsonify({"error": "PDF file not found."}), 404
-
-@app.route('/download-image/<email>', methods=['GET'])
-def download_image(email):
-    image_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.png")
-    if os.path.exists(image_filename):
-        return send_file(image_filename, mimetype='image/png', as_attachment=True)
-    return jsonify({"error": "Image file not found."}), 404
-
-# Define the path to the assets folder
-ASSETS_FOLDER = os.path.join(app.root_path, 'static', 'assets')
-
-@app.route('/assets/<path:filename>')
-def download_file(filename):
-    return send_from_directory(ASSETS_FOLDER, filename, as_attachment=True)
 
 def send_masked_aadhaar_email(email, pdf_path, image_path):
-    pdf_filename = os.path.basename(pdf_path)
-    image_filename = os.path.basename(image_path)
+    # Extract filenames from paths
+    pdf_filename = os.path.basename(pdf_path)  # e.g., aadhaar_card_email.pdf
+    image_filename = os.path.basename(image_path)  # e.g., aadhaar_card_email.png
     logo_path = os.path.join(ASSETS_DIR, "logo-square-light.png")
 
+    # Set up the MIME message with multipart content
     msg = MIMEMultipart('related')
     msg['Subject'] = 'Here is your masked Aadhaar'
     msg['From'] = 'omkarlakhutework1@gmail.com'
     msg['To'] = email
 
+    # Include HTML with styling
     # HTML content with inline image
     html = f"""
     <html>
     <body>
         <p>Dear user,</p>
         <p>Please find your masked Aadhaar attached as a PDF document. Here’s a preview of your masked Aadhaar:</p>
-        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 300px; height: auto;" />
+        <img src="cid:masked_aadhaar_image" alt="Masked Aadhaar" style="width: 100%; max-width: 300px; height: auto;" />
+
         <!-- Four-line gap -->
         <div style="line-height: 1.5; height: 4em;"></div>
+
         <p style="font-style: italic; font-weight: bold; color: #333;">
             Best regards,<br>
             HashGuard Team
         </p>
-        <img src="cid:company_logo" alt="Company Logo" style="width: 101px; height: auto; margin-top: 5ppx;" />
+
+        <!-- Company logo -->
+        <img src="cid:company_logo" alt="Company Logo" style="width: 101px; height: auto; margin-top: 5px;" />
+        <!-- Four-line gap -->
+        <div style="line-height: 1.5; height: 4em;"></div>
     </body>
     </html>
     """
@@ -416,15 +410,15 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
 
     # Attach the image for inline display
     with open(image_path, 'rb') as img_file:
-        img = MIMEImage(img_file.read(), _subtype="png")
-        img.add_header('Content-ID', '<masked_aadhaar_image>')
-        img.add_header('Content-Disposition', 'inline', filename=image_filename)
+        img = MIMEImage(img_file.read(), _subtype="png")  # Ensure it's a PNG image
+        img.add_header('Content-ID', '<masked_aadhaar_image>')  # Matches the "cid" in HTML
+        img.add_header('Content-Disposition', 'inline', filename=image_filename)  # Use the image filename
         msg.attach(img)
 
     # Attach the PDF as an attachment
     with open(pdf_path, 'rb') as pdf_file:
         pdf = MIMEApplication(pdf_file.read(), _subtype="pdf")
-        pdf.add_header('Content-Disposition', 'attachment', filename=pdf_filename)
+        pdf.add_header('Content-Disposition', 'attachment', filename=pdf_filename)  # Use the PDF filename
         msg.attach(pdf)
 
     # Attach the company logo
@@ -434,6 +428,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
         logo.add_header('Content-Disposition', 'inline', filename='hashguard_logo.png')
         msg.attach(logo)
 
+    # Send the email via SMTP
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
         server.login('omkarlakhutework1@gmail.com', 'gecx rpts oddc sflv')
@@ -442,17 +437,21 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
 
 # Helper function to generate PDF
-def generate_pdf(template_path, name, dob, gender, vid, email):
+def generate_pdf(template_path, name, dob, gender, vid, email , last_digits):
     pdf_filename = os.path.join(ASSETS_DIR, f"aadhaar_card_{email}.pdf")
     c = canvas.Canvas(pdf_filename, pagesize=(243.66, 153.56))
     c.drawImage(template_path, 0, 0, width=243.66, height=153.56)
     c.setFont("Helvetica", 7)
-    c.drawString(99.173, 104.31 - 8.502 / 2.5, f"Name: {name}")
-    c.drawString(96.063, 90.799 - 8.502 / 1.5, f"DOB: {dob}")
-    c.drawString(104.330, 73.66 - 8.502 / 1.35, f"Gender: {gender}")
-    c.drawString(96.063, 59.401 - 8.502 / 1.40, f"VID: {vid}")
+
+    c.drawString(99.173-18, 104.31 - 8.502 / 2.5, f"Name: {name}")     
+    c.drawString(96.063-15, 90.799 - 8.502 / 1.5, f"DOB: {dob}") 
+    c.drawString(104.330-23, 73.66 - 8.502 / 1.35, f"Gender: {gender}")  
+    c.drawString(96.063-15, 59.401 - 8.502 / 1.40, f"VID: {vid}") 
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(138, 39.6, last_digits)
     c.save()
 
+    # Convert the generated PDF to an image
     pdf_to_image(pdf_filename)
 
     return pdf_filename
@@ -466,6 +465,7 @@ def pdf_to_image(pdf_path, dpi=300):
     pix.save(image_filename)
     pdf_document.close()
 
+    
 @app.route('/verify-captcha', methods=['POST'])
 def verify_captcha():
     captcha_checked = request.json.get('captcha_checked', False)
@@ -474,6 +474,8 @@ def verify_captcha():
         return jsonify({'status': 'success'})
     else:
         return jsonify({'status': 'error', 'message': 'CAPTCHA verification failed!'})
+
+
 
 if __name__ == '__main__':
     create_tables()
