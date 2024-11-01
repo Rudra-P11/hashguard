@@ -1,14 +1,48 @@
-# Ignore Python cache files
-__pycache__/
-*.pyc
+# dependencies
+client/node_modules
+client/.pnp
+.pnp.js
+.yarn/install-state.gz
 
-# Ignore virtual environments
-venv/
-.env
+# testing
+client/coverage
 
-# Ignore other common files
+# next.js
+client/.next/
+client/out/
+
+# production
+client/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# next-sitemap
+client/public/robots.txt
+client/public/sitemap*.xml
+
+# we have the docs on server. to save space on github, we ignore them
+client/public/docs/*
+
+#generated masked aadhaars
+server/assets/aadhaar_card*
+
+#db files
 *.db
-*.sqlite3
 
-# Ignore Visual Studio Code settings
-.vscode/
