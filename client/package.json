@@ -39,7 +39,8 @@
     "react-speech-recognition": "^3.10.0",
     "styled-components": "^6.1.13",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "typed.js": "^2.1.0"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
