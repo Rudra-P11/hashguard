@@ -39,30 +39,49 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
+  const getInitials = (email: string) => {
+    const [firstName, lastName] = email.split('@')[0].split('.');
+    return `${firstName[0]}${lastName ? lastName[0] : ''}`.toUpperCase();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4 text-white">
-      {/* Welcome Section */}
-      <div className="w-full h-auto flex flex-col items-center justify-center bg-gray-800 rounded-lg shadow-lg mb-12 py-40 px-6">
-        <h1 className="text-6xl font-bold mb-4 text-center">Welcome to HashGuard</h1>
-        <p className="text-2xl text-gray-300 mb-2 text-center motto h-8 line-height-8 overflow-hidden"></p>
-        <p className="text-lg text-gray-400 mb-4 text-center">
-          Empowering you to manage your Aadhaar and VID securely and privately.
-        </p>
-        {loading ? (
-          <p className="text-lg text-gray-300">Loading...</p>
-        ) : loggedInEmail ? (
-          <p className="text-lg text-green-400">Logged in as: {loggedInEmail}</p>
-        ) : (
-          <div className="flex space-x-4 mt-4">
-            <Link href="/login" className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
-              Login
-            </Link>
-            <Link href="/signup" className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
-              Signup
-            </Link>
-          </div>
-        )}
+{/* Welcome Section */}
+<div className="w-full h-auto flex flex-col items-center justify-center bg-gray-800 rounded-lg shadow-lg mb-12 py-40 px-6">
+  <h1 className="text-6xl font-bold mb-4 text-center text-white">Welcome to HashGuard</h1>
+  <p className="text-2xl text-gray-300 mb-2 text-center motto h-8 line-height-8 overflow-hidden"></p>
+  <p className="text-lg text-gray-400 mb-4 text-center">
+    Empowering you to manage your Aadhaar and VID securely and privately.
+  </p>
+  {loading ? (
+    <p className="text-lg text-gray-300">Loading...</p>
+  ) : loggedInEmail ? (
+    <div className="flex items-center mt-4">
+      {/* Circular Initials Div */}
+      <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-600 text-white font-bold text-2xl uppercase -mr-3 relative z-10">
+        {getInitials(loggedInEmail)}
       </div>
+      {/* Rectangular Info Div */}
+      <div className="bg-gray-700 py-2 pl-6 pr-4 rounded-lg flex items-center">
+        <p className="text-green-400">Signed in as: {loggedInEmail}</p>
+      </div>
+    </div>
+  ) : (
+    <div className="flex space-x-4 mt-4">
+      <Link href="/login">
+        <a className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
+          Login
+        </a>
+      </Link>
+      <Link href="/signup">
+        <a className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
+          Signup
+        </a>
+      </Link>
+    </div>
+  )}
+</div>
+
 
 
             {/* Project Overview Section */}
@@ -175,7 +194,7 @@ const HomePage: React.FC = () => {
       </div>
 
 {/* Credits Section */}
-<div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg mt-12">
+<div className="w-full p-6 bg-gray-800 rounded-lg shadow-lg mt-12 mb-12">
   <h2 className="text-4xl font-extrabold mb-6 text-center text-3D52A0">Acknowledgments</h2>
   <p className="text-lg text-center text-gray-300 mb-4">
     We would like to express our gratitude to the following contributors for their invaluable support and expertise in bringing HashGuard to life!
@@ -183,34 +202,32 @@ const HomePage: React.FC = () => {
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
     {/* Contributor Cards */}
     {[
-      { name: "John Doe", linkedIn: "https://www.linkedin.com/in/johndoe" },
-      { name: "Jane Smith", linkedIn: "https://www.linkedin.com/in/janesmith" },
-      { name: "Alice Johnson", linkedIn: "https://www.linkedin.com/in/alicejohnson" },
-      { name: "Bob Brown", linkedIn: "https://www.linkedin.com/in/bobbrown" },
+      { name: "Omkar Lakhute", linkedIn: "https://www.linkedin.com/in/omkar-lakhute-linked-in/" },
+      { name: "Rudra Pandya", linkedIn: "https://www.linkedin.com/in/rudrap11/" },
+      { name: "Arya Sali", linkedIn: "https://www.linkedin.com/in/arya-sali-13171227a/" },
+      { name: "Shreyas Kadge", linkedIn: "https://www.linkedin.com/in/shreyas-kadge-638661265/" },
     ].map((contributor, index) => (
-      <div
+      <a
         key={index}
+        href={contributor.linkedIn}
+        target="_blank"
+        rel="noopener noreferrer"
         className="bg-gray-700 border border-gray-600 rounded-lg shadow-lg p-4 transition transform hover:scale-105 hover:bg-8697C4 duration-300"
       >
         <div className="flex items-center justify-center space-x-2">
           <h3 className="text-xl font-semibold mb-1 text-white">{contributor.name}</h3>
-          <Link href={contributor.linkedIn} target="_blank" className="ml-2">
-            <FaLinkedin className="text-blue-500 w-5 h-5 hover:text-blue-600 transition duration-300" />
-          </Link>
+          <FaLinkedin className="text-blue-500 w-5 h-5 hover:text-blue-600 transition duration-300 relative" style={{ top: '-2px' }} />
         </div>
-      </div>
+      </a>
     ))}
   </div>
   <div className="mt-6 text-center">
     <p className="text-lg text-gray-300 mb-2">Check out our code on GitHub:</p>
-    <Link href="https://github.com/your-repo" target="_blank" className="inline-flex items-center text-blue-400 text-2xl hover:underline hover:text-blue-600 transition duration-300">
+    <a href="https://github.com/Omkar982004/hashguard" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-blue-400 text-2xl hover:underline hover:text-blue-600 transition duration-300">
       <FaGithub className="w-6 h-6 mr-2" /> GitHub Repository
-    </Link>
+    </a>
   </div>
 </div>
-
-
-
     </div>
   );
 };
