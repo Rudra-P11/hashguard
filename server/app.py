@@ -532,7 +532,7 @@ def authenticate_vid():
     
     try:
         # Check if the VID exists in the database
-        c.execute("SELECT name, dob, gender FROM users WHERE vid = ?", (vid,))
+        c.execute("SELECT name, dob, gender , email , last_digits FROM users WHERE vid = ?", (vid,))
         user = c.fetchone()
 
         if user:
@@ -540,7 +540,9 @@ def authenticate_vid():
             user_details = {
                 "name": user["name"],
                 "dob": user["dob"],
-                "gender": user["gender"]
+                "gender": user["gender"],
+                "email": user["email"],
+                "last_digits":user["last_digits"]
             }
             return jsonify({"message": "Authentication successful", "user_details": user_details}), 200
         else:

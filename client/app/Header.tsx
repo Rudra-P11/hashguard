@@ -52,13 +52,13 @@ const navmenuItems: NavmenuItem[] = [
   { text: 'Home', href: '/' },
   {
     text: 'Services',
-    href: '/campus',
+    href: '/services',
     subGroups: [
       { 
         width: 250,
         items: [
-          { text: 'Generate Masked Aadhaar', href: '/masked_aadhaar' },
-          { text: 'Authenticate using VID', href: '/auth_vid' },
+          { text: 'Generate Masked Aadhaar', href: '/learn_masked_aadhaar' },
+          { text: 'Authenticate using VID', href: '/learn_auth_vid' },
         ],
       },
     ],
