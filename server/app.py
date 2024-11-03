@@ -4,16 +4,12 @@ import hashlib, secrets, sqlite3, time, smtplib, os
 from email.mime.text import MIMEText
 from flask_cors import CORS
 from datetime import datetime
-from pydub import AudioSegment
-import speech_recognition as sr
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from pdf2image import convert_from_path
 import fitz  # PyMuPDF
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage  # Import for image attachments
-from email import encoders
 from email.mime.application import MIMEApplication
 
 app = Flask(__name__)
