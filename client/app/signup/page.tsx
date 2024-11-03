@@ -59,40 +59,46 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Check if password is at least 8 characters
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+  
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
+  
     if (!formData.name) {
       setError('Please provide your name.');
       return;
     }
-
+  
     if (!formData.dob) {
       setError('Please provide your date of birth.');
       return;
     }
-
+  
     if (!formData.gender) {
       setError('Please select your gender.');
       return;
     }
-
+  
     if (!formData.email || emailWarning) {
       setError('Please provide a valid email address.');
       return;
     }
-
+  
     if (!formData.aadhaar || aadhaarWarning) {
       setError('Please provide a valid Aadhaar number.');
       return;
     }
-
+  
     setError('');
     setLoading(true); // Set loading to true
-
+  
     try {
       const response = await axios.post('http://127.0.0.1:5000/register', {
         email: formData.email,
@@ -102,7 +108,7 @@ const SignUpPage: React.FC = () => {
         dob: formData.dob,
         gender: formData.gender,
       });
-
+  
       if (response.status === 201) {
         // Status code for created
         // Store email in cookies for OTP verification

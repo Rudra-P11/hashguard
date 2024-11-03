@@ -11,15 +11,15 @@ const LoginPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldWarnings, setFieldWarnings] = useState({ email: '', password: '' });
-  const [isLoading, setIsLoading] = useState(true); // New state for loading
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const loggedInEmail = Cookies.get('email');
     if (loggedInEmail) {
-      router.push('/'); // Redirect if already logged in
+      router.push('/');
     } else {
-      setIsLoading(false); // Set loading to false if no logged-in email
+      setIsLoading(false);
     }
   }, [router]);
 
@@ -51,7 +51,7 @@ const LoginPage: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        Cookies.set('email', formData.email, { expires: 1 });
+        Cookies.set('email', formData.email);
         setSuccessMessage('Login successful! Redirecting...');
         setTimeout(() => {
           setSuccessMessage('');
@@ -71,14 +71,7 @@ const LoginPage: React.FC = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-900">
         <svg className="animate-spin h-10 w-10 text-white" viewBox="0 0 24 24">
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          ></circle>
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
           <path
             className="opacity-75"
             fill="currentColor"
@@ -94,8 +87,8 @@ const LoginPage: React.FC = () => {
       <div className="w-full max-w-md bg-gray-800 p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-white mb-6">Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
             <label htmlFor="email" className="block text-gray-300 text-sm font-bold mb-2">Email</label>
             <input
               type="email"
@@ -104,14 +97,14 @@ const LoginPage: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-600 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-600 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your Gmail address"
             />
             {emailWarning && <p className="text-red-500 text-sm mt-1">{emailWarning}</p>}
             {fieldWarnings.email && <p className="text-red-500 text-sm mt-1">{fieldWarnings.email}</p>}
           </div>
 
-          <div className="mb-4">
+          <div>
             <label htmlFor="password" className="block text-gray-300 text-sm font-bold mb-2">Password</label>
             <input
               type="password"
@@ -120,7 +113,7 @@ const LoginPage: React.FC = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-600 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-600 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
             />
             {fieldWarnings.password && <p className="text-red-500 text-sm mt-1">{fieldWarnings.password}</p>}
@@ -131,7 +124,7 @@ const LoginPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-300 font-semibold flex items-center justify-center"
+            className={`w-full flex items-center justify-center bg-blue-600 text-white font-semibold px-4 py-2 rounded-md transition duration-300 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-500'}`}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
