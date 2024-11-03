@@ -80,20 +80,10 @@ function Footer() {
         </div>
         <div className="flex flex-col w-fit gap-2">
           <h2 className="w-fit font-bold text-lg lg:text-2xl mt-4 mb-2 half-underline">Other Links</h2>
-          <Link className='hover:underline' href="/abc">abc</Link>
-          <div className='flex gap-2'>
-            <Link className='hover:underline' href="abc">abc</Link><span className='select-none'>|</span>
-            <Link className='hover:underline' href="abc">abc</Link><span className='select-none'>|</span>
-            <Link className='hover:underline' href="abc">abc</Link>
-
-          </div>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' href="abc">abc</Link>
-          <Link className='hover:underline' target='_blank' href="">abc</Link>
+          <Link className='hover:underline' target='_blank' href="https://uidai.gov.in/">uidai.gov.in</Link>
+          <Link className='hover:underline' target='_blank' href="https://resident.uidai.gov.in/vid-generation">uidai vid-generation</Link>
+          <Link className='hover:underline' target='_blank' href="https://iiitdwd.ac.in/">IIIT Dharwad</Link>
+          <Link className='hover:underline' target='_blank' href="https://iiitdwd.ac.in/faculty/RajendraHegadi/">Assigned by Dr. Rajendra Hegadi</Link>
         </div>
 
         <div className="flex flex-col w-fit gap-2">
