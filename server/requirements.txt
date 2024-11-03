@@ -1,0 +1,8 @@
+Flask
+cryptography
+pydub
+speechrecognition
+reportlab
+pdf2image
+pymupdf
+flask-cors
