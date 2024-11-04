@@ -38,7 +38,7 @@ function Footer() {
               Sattur Colony, Dharwad 580009
             </div>
             <a
-              href="mailto:omkarlakhutework1@gmail.com"
+              href="mailto:hashguards.projectaadhaar@gmail.com"
               className="flex gap-2 items-center"
             >
               <MailIcon size="1rem" />
