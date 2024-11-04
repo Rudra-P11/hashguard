@@ -42,7 +42,7 @@ function Footer() {
               className="flex gap-2 items-center"
             >
               <MailIcon size="1rem" />
-              omkarlakhutework1@gmail.com
+              hashguards.projectaadhaar@gmail.com
             </a>
           </div>
 
