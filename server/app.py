@@ -154,11 +154,11 @@ def register():
     # Send OTP email
     msg = MIMEText(f'Your OTP is: {otp}')
     msg['Subject'] = 'OTP for Registration'
-    msg['From'] = 'omkarlakhutework1@gmail.com'
+    msg['From'] = 'hashguards.projectaadhaar@gmail.com'
     msg['To'] = email
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('omkarlakhutework1@gmail.com', 'gecx rpts oddc sflv')
+        server.login('hashguards.projectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
         server.send_message(msg)
 
     # Return a message indicating the OTP was sent
@@ -305,11 +305,11 @@ def resend_otp():
     # Send the new OTP email
     msg = MIMEText(f'Your OTP is: {otp}')  # Consider including the actual OTP in the message
     msg['Subject'] = 'OTP for Registration'
-    msg['From'] = 'omkarlakhutework1@gmail.com'  # Set the sender's email address
+    msg['From'] = 'hashguards.projectaadhaar@gmail.com'  # Set the sender's email address
     msg['To'] = email  # Set the recipient's email address
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('omkarlakhutework1@gmail.com', 'gecx rpts oddc sflv')
+        server.login('hashguardsprojectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
         server.send_message(msg)
 
     return jsonify({"message": "New OTP sent successfully."}), 200
@@ -376,7 +376,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     # Set up the MIME message with multipart content
     msg = MIMEMultipart('related')
     msg['Subject'] = 'Here is your masked Aadhaar'
-    msg['From'] = 'omkarlakhutework1@gmail.com'
+    msg['From'] = 'hashguards.projectaadhaar@gmail.com'
     msg['To'] = email
 
     # Include HTML with styling
@@ -428,7 +428,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     # Send the email via SMTP
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('omkarlakhutework1@gmail.com', 'gecx rpts oddc sflv')
+        server.login('hashguards.projectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
         server.send_message(msg)
 
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200

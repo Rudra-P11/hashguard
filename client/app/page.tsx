@@ -69,14 +69,14 @@ const HomePage: React.FC = () => {
   ) : (
     <div className="flex space-x-4 mt-4">
       <Link href="/login">
-        <a className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
+        <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
           Login
-        </a>
+        </div>
       </Link>
       <Link href="/signup">
-        <a className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
+        <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-500 transition duration-300">
           Signup
-        </a>
+        </div>
       </Link>
     </div>
   )}
