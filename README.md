@@ -73,7 +73,7 @@ This project aims to enhance privacy and security in identity management while p
 This project exists thanks to all the people who contribute.
 
 <p align="left">
-  <a href="https://github.com/Velocity-IIITDWD/iiitdwd.ac.in/graphs/contributors">
+  <a href="https://github.com/Omkar982004/hashguard/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Omkar982004/hashguard" />
   </a>
 </p>
