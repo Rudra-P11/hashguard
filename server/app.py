@@ -23,7 +23,8 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
 
 # Database connection
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), 'users.db')
+    db_path = '/var/lib/db/users.db'
+    os.makedirs(db_path, exist_ok=True)
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
@@ -339,7 +340,8 @@ def login():
 
 
 # Define the directory to store assets
-ASSETS_DIR = os.path.join(os.path.dirname(__file__), 'assets')
+ASSETS_DIR = "/var/lib/assets"
+PUBLIC_DIR = os.path.join(os.path.dirname(__file__), 'public')
 
 @app.route('/generate-aadhaar-card/<email>', methods=['GET'])
 def generate_aadhaar_card(email):
@@ -352,7 +354,7 @@ def generate_aadhaar_card(email):
 
     if user:
         name, dob, gender, vid , last_digits= user
-        template_path = os.path.join(ASSETS_DIR, "aadhaar_template.png")  # Set your template path
+        template_path = os.path.join(PUBLIC_DIR, "aadhaar_template.png")  # Set your template path
 
         # Generate PDF and image
         pdf_filename = generate_pdf(template_path, name, dob, gender, vid, email , last_digits)
@@ -374,7 +376,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     # Extract filenames from paths
     pdf_filename = os.path.basename(pdf_path)  # e.g., aadhaar_card_email.pdf
     image_filename = os.path.basename(image_path)  # e.g., aadhaar_card_email.png
-    logo_path = os.path.join(ASSETS_DIR, "logo-square-light.png")
+    logo_path = os.path.join(PUBLIC_DIR, "logo-square-light.png")
 
     # Set up the MIME message with multipart content
     msg = MIMEMultipart('related')
