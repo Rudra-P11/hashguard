@@ -74,7 +74,7 @@ This project exists thanks to all the people who contribute.
 
 <p align="left">
   <a href="https://github.com/Velocity-IIITDWD/iiitdwd.ac.in/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Velocity-IIITDWD/iiitdwd.ac.in" />
+  <img src="https://contrib.rocks/image?repo=Omkar982004/hashguard" />
   </a>
 </p>
 
