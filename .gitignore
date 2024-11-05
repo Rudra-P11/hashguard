@@ -46,3 +46,5 @@ server/assets/aadhaar_card*
 #db files
 *.db
 
+server/assets
+
