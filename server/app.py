@@ -18,6 +18,9 @@ CORS(app)
 key = Fernet.generate_key()
 cipher_suite = Fernet(key)
 
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
+
 # Database connection
 def get_db_connection():
     db_path = os.path.join(os.path.dirname(__file__), 'users.db')
@@ -158,7 +161,7 @@ def register():
     msg['To'] = email
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('hashguards.projectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.send_message(msg)
 
     # Return a message indicating the OTP was sent
@@ -309,7 +312,7 @@ def resend_otp():
     msg['To'] = email  # Set the recipient's email address
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('hashguardsprojectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.send_message(msg)
 
     return jsonify({"message": "New OTP sent successfully."}), 200
@@ -428,7 +431,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     # Send the email via SMTP
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login('hashguards.projectaadhaar@gmail.com', 'pqso wuvk dzay emuv')
+        server.login(EMAIL_USER, EMAIL_PASSWORD)
         server.send_message(msg)
 
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
