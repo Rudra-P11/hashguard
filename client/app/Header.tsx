@@ -123,7 +123,7 @@ function Header() {
         <Sheet>
           <SheetTrigger asChild>
             <div className="ml-auto mr-4 lg:hidden">
-              <MenuIcon size="2rem" />
+              <MenuIcon size="2rem" className="text-white"/>
             </div>
           </SheetTrigger>
           <SheetContent side="left">
