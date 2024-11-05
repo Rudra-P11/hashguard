@@ -67,3 +67,15 @@ This project aims to enhance privacy and security in identity management while p
 ***4\) Gmail API to verify users***  
 ***5\) Captcha authentication***  
 ***6\) Masked Adhaar generation***
+
+## 👏 Contributors
+
+This project exists thanks to all the people who contribute.
+
+<p align="left">
+  <a href="https://github.com/Velocity-IIITDWD/iiitdwd.ac.in/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Velocity-IIITDWD/iiitdwd.ac.in" />
+  </a>
+</p>
+
+---
