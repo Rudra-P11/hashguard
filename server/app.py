@@ -18,14 +18,19 @@ CORS(app)
 key = Fernet.generate_key()
 cipher_suite = Fernet(key)
 
+
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
 
+# Define paths using Railway's persistent directory
+PERSISTENT_DIR = os.getenv("RAILWAY_PERSISTENT_DIR", "/var/lib/db")
+DB_PATH = os.path.join(PERSISTENT_DIR, "users.db")
+ASSETS_DIR = os.path.join(PERSISTENT_DIR, "assets")
+
 # Database connection
 def get_db_connection():
-    db_path = '/var/lib/db/users.db'
-    os.makedirs(db_path, exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    os.makedirs(PERSISTENT_DIR, exist_ok=True)  # Ensure persistent directory exists
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -339,8 +344,7 @@ def login():
         conn.close()
 
 
-# Define the directory to store assets
-ASSETS_DIR = "/var/lib/assets"
+
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), 'public')
 
 @app.route('/generate-aadhaar-card/<email>', methods=['GET'])
@@ -519,8 +523,8 @@ def authenticate_vid():
 
 
 
-
-if __name__ == '__main__':
+with app.app_context():
     create_tables()
-    print("Database tables created or verified.")
-    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
