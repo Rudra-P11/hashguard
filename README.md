@@ -1,11 +1,13 @@
 **HashGuard’s Project आधार**
 
-<a href="https://hashguard.vercel.app">
-  hashguard.vercel.app
-</a>
-
 <p align="center">
-<img src="public/Project_Aadhaar_Logo.jpg" alt="Masked Aadhaar example" width="250"/>
+  <a href="https://hashguard.vercel.app" target="_blank" style="font-size: 1.5rem; color: #3D52A0; font-weight: bold; text-decoration: none; transition: color 0.3s;">
+    hashguard.vercel.app
+  </a>
+</p>
+
+<p style="text-align: center; margin-top: 1rem;">
+  <img src="public/Project_Aadhaar_Logo.jpg" alt="Masked Aadhaar example" width="250"/>
 </p>
 
 ### **Brief on Masked Aadhaar Card**
