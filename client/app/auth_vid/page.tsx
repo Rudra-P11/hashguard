@@ -19,7 +19,7 @@ const AuthenticateVID: React.FC = () => {
         setCaptchaLoading(true);
         setIsSubmitEnabled(false); // Disable submit until CAPTCHA is verified
         try {
-            const response = await axios.post('http://127.0.0.1:5000/verify-captcha', { captcha_checked: checked });
+            const response = await axios.post('https://hashguard-production.up.railway.app/verify-captcha', { captcha_checked: checked });
             setTimeout(() => {
                 if (response.data.status === 'success') {
                     setMessage('CAPTCHA verified successfully!');
@@ -88,7 +88,7 @@ const AuthenticateVID: React.FC = () => {
         }, 1000); // 1 second timeout
 
         try {
-            const response = await axios.post('http://127.0.0.1:5000/authenticate-vid', { vid: vidNumber });
+            const response = await axios.post('https://hashguard-production.up.railway.app/authenticate-vid', { vid: vidNumber });
             clearTimeout(spinnerTimeout);
             setLoading(false);
 

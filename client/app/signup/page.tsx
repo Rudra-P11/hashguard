@@ -100,7 +100,7 @@ const SignUpPage: React.FC = () => {
     setLoading(true); // Set loading to true
   
     try {
-      const response = await axios.post('http://127.0.0.1:5000/register', {
+      const response = await axios.post('https://hashguard-production.up.railway.app/register', {
         email: formData.email,
         password: formData.password,
         aadhaar: formData.aadhaar,
