@@ -1,4 +1,4 @@
-**HashGuard’s Project आधार (<a href="https://hashguard.vercel.app">hashguard.vercel.app</a>)**
+**HashGuard’s Project आधार  ( <a href="https://hashguard.vercel.app">hashguard.vercel.app</a> )**
 
 <p align="center">
 <img src="public/Project_Aadhaar_Logo.jpg" alt="Masked Aadhaar example" width="250"/>
