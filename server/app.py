@@ -23,9 +23,10 @@ EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
 
 # Define paths using Railway's persistent directory
-PERSISTENT_DIR = os.getenv("RAILWAY_PERSISTENT_DIR", "/var/lib/db")
+PERSISTENT_DIR = os.getenv("RAILWAY_PERSISTENT_DIR", "/var/lib/db") 
 DB_PATH = os.path.join(PERSISTENT_DIR, "users.db")
 ASSETS_DIR = os.path.join(PERSISTENT_DIR, "assets")
+os.makedirs(ASSETS_DIR, exist_ok=True)  # This will create the folder if it doesn't exist
 
 # Database connection
 def get_db_connection():
