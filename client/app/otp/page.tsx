@@ -31,7 +31,7 @@ const OtpPage: React.FC = () => {
   useEffect(() => {
     const checkOtp = async () => {
       try {
-        const response = await axios.post("http://localhost:5000/check-otp", { email });
+        const response = await axios.post("https://hashguard-production.up.railway.app/check-otp", { email });
         if (response.data.otpExists) {
           setTimeLeft(response.data.remainingTime);
           setIsTimerActive(true);
@@ -72,7 +72,7 @@ const OtpPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/verify-otp", {
+      const response = await axios.post("https://hashguard-production.up.railway.app/verify-otp", {
         email,
         otp,
         name,
@@ -107,7 +107,7 @@ const OtpPage: React.FC = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/resend-otp", { email });
+      await axios.post("https://hashguard-production.up.railway.app/resend-otp", { email });
       setTimeLeft(300); // Reset timer to 5 minutes
       setIsTimerActive(true); // Start the timer again
       setError("");
