@@ -438,6 +438,10 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
         server.login("hashguards.projectaadhaar@gmail.com", "cuzy fkhw smkp lipc")
         server.send_message(msg)
 
+    # Delete the files from the assets folder
+    os.remove(pdf_path)
+    os.remove(image_path)
+
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
 
 # Helper function to generate PDF
