@@ -30,7 +30,7 @@ const GenerateMaskedAadhaar: React.FC = () => {
         if (checked) {
             setCaptchaLoading(true);
             try {
-                const response = await axios.post('http://127.0.0.1:5000/verify-captcha', { captcha_checked: checked });
+                const response = await axios.post('https://hashguard-production.up.railway.app/verify-captcha', { captcha_checked: checked });
                 setIsSubmitEnabled(response.data.status === 'success');
             } catch (error) {
                 console.error('CAPTCHA verification error:', error);
@@ -68,7 +68,7 @@ const GenerateMaskedAadhaar: React.FC = () => {
         setSubmitLoading(true);
 
         try {
-            const response = await axios.get(`http://127.0.0.1:5000/generate-aadhaar-card/${email}`);
+            const response = await axios.get(`https://hashguard-production.up.railway.app/generate-aadhaar-card/${email}`);
             
             if (response.data) {
                 setErrorMessage(response.data.error || null);
