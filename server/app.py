@@ -19,9 +19,6 @@ key = Fernet.generate_key()
 cipher_suite = Fernet(key)
 
 
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
-
 # Define paths using Railway's persistent directory
 PERSISTENT_DIR = os.getenv("RAILWAY_PERSISTENT_DIR", "/var/lib/db") 
 DB_PATH = os.path.join(PERSISTENT_DIR, "users.db")
@@ -168,7 +165,7 @@ def register():
     msg['To'] = email
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        server.login("hashguards.projectaadhaar@gmail.com", "cuzy fkhw smkp lipc")
         server.send_message(msg)
 
     # Return a message indicating the OTP was sent
@@ -319,7 +316,7 @@ def resend_otp():
     msg['To'] = email  # Set the recipient's email address
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        server.login("hashguards.projectaadhaar@gmail.com", "cuzy fkhw smkp lipc")
         server.send_message(msg)
 
     return jsonify({"message": "New OTP sent successfully."}), 200
@@ -438,7 +435,7 @@ def send_masked_aadhaar_email(email, pdf_path, image_path):
     # Send the email via SMTP
     with smtplib.SMTP('smtp.gmail.com', 587) as server:
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASSWORD)
+        server.login("hashguards.projectaadhaar@gmail.com", "cuzy fkhw smkp lipc")
         server.send_message(msg)
 
     return jsonify({"message": "Masked Aadhaar email sent successfully."}), 200
