@@ -533,6 +533,20 @@ def reset_database():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/list-assets', methods=['GET'])
+def list_assets():
+    try:
+        # Get all files in the assets directory
+        files = os.listdir(ASSETS_DIR)
+        # Filter to only include files (not directories)
+        files = [file for file in files if os.path.isfile(os.path.join(ASSETS_DIR, file))]
+        
+        if files:
+            return jsonify({"files": files}), 200
+        else:
+            return jsonify({"message": "No files found in the assets directory."}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 with app.app_context():
     create_tables()
