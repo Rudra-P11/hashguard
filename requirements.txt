@@ -1,8 +1,5 @@
 Flask
 cryptography
-hashlib
-secrets
-sqlite3
 flask-cors
 reportlab
 pdf2image
