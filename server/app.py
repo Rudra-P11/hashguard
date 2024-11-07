@@ -20,7 +20,7 @@ cipher_suite = Fernet(key)
 
 
 EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # Define paths using Railway's persistent directory
 PERSISTENT_DIR = os.getenv("RAILWAY_PERSISTENT_DIR", "/var/lib/db") 
