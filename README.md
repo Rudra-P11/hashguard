@@ -1,6 +1,13 @@
-**HashGuard’s Project आधार   ( <a href="https://hashguard.vercel.app"> hashguard.vercel.app </a> )**
+**HashGuard’s Project आधार**
 
-<p align="center">
+<p>
+  The website is live at:
+  <a href="https://hashguard.vercel.app" target="_blank" style="font-size: 1.5rem; color: #3D52A0; font-weight: bold; text-decoration: none;">
+    hashguard.vercel.app
+  </a>
+</p>
+
+<p align="center" style="margin-top: 1rem;">
 <img src="public/Project_Aadhaar_Logo.jpg" alt="Masked Aadhaar example" width="250"/>
 </p>
 
