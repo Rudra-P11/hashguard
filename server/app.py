@@ -519,6 +519,19 @@ def authenticate_vid():
     finally:
         conn.close()
 
+@app.route('/reset-database', methods=['POST'])
+def reset_database():
+    try:
+        # Delete the existing database file
+        if os.path.exists(DB_PATH):
+            os.remove(DB_PATH)
+        
+        # Recreate the database and tables
+        create_tables()
+        
+        return jsonify({"message": "Database reset successfully."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 with app.app_context():
