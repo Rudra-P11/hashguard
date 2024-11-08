@@ -83,8 +83,8 @@ const AuthVidDetails: React.FC = () => {
             <div className="w-full max-w-2xl bg-gray-800 p-8 rounded-2xl shadow-2xl space-y-8">
                 {/* Profile Image Placeholder */}
                 <div className="flex justify-center">
-                    <div className="w-48 h-44 bg-gray-700 overflow-hidden">
-                        <img src="/images/profile.png" alt="Profile" className="object-cover w-full h-full" />
+                    <div className="w-48 h-44 bg-gray-800">
+                        <img src="/images/profile.png" alt="Profile" className="w-full h-full" />
                     </div>
                 </div>
 
