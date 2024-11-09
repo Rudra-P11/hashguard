@@ -2,6 +2,7 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
+    "jsx": "react-jsx",
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
